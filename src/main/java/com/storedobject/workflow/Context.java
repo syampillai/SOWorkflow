@@ -7,22 +7,26 @@ import java.util.concurrent.Future;
 /**
  * Workflow context.
  *
+ * @param <T> Type of item used in the workflow.
  * @author Syam
  */
-public class Context {
+public final class Context<T> {
 
     private static final ExecutorService executor = Executors.newCachedThreadPool();
-    Task predecessor;
-    private Object parameters;
+    private final T item;
+    /**
+     * The predecessor task.
+     */
+    Task<T> predecessor;
 
     /**
      * Constructor (to be used internally).
      *
-     * @param parameters Parameter object to be made available when this instance is passed to the
+     * @param item Item to be made available when this instance is passed to the
      *                   workflow task while executing it.
      */
-    Context(Object parameters) {
-        this.parameters = parameters;
+    Context(T item) {
+        this.item = item;
     }
 
     /**
@@ -31,7 +35,7 @@ public class Context {
      * @param task Task to be executed.
      * @return Result of the task execution as a {@link Future}.
      */
-    Future<Boolean> execute(Task task) {
+    Future<Boolean> execute(Task<T> task) {
         return executor.submit(() -> task.execute(this));
     }
 
@@ -39,26 +43,16 @@ public class Context {
      * Get the predecessor task in the workflow chain that invoked the current task.
      * @return The predecessor task. For the fist task in the workflow, it will be <code>null</code>.
      */
-    public Task getPredecessor() {
+    public Task<T> getPredecessor() {
         return predecessor;
     }
 
     /**
-     * Get the parameters set.
+     * Get the item of the workflow.
      *
-     * @return Parameters object.
+     * @return Item of the workflow.
      */
-    public Object getParameters() {
-        return parameters;
-    }
-
-    /**
-     * Set parameters. Any sort of parameter structure can be defined and set either by individual tasks or while
-     * starting the execution of the workflow.
-     *
-     * @param parameters Parameters to be set.
-     */
-    public void setParameters(Object parameters) {
-        this.parameters = parameters;
+    public T getItem() {
+        return item;
     }
 }

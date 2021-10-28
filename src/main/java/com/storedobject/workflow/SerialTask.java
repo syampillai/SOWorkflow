@@ -8,11 +8,12 @@ import java.util.List;
  * Two or more tasks to be executed sequentially. If any one of the tasks fails to execute, the rest of the tasks are
  * ignored.
  *
+ * @param <T> Type of item used in the workflow.
  * @author Syam
  */
-public final class SerialTask implements Task {
+public final class SerialTask<T> implements Task<T> {
 
-    private final List<Task> list = new ArrayList<>();
+    private final List<Task<T>> list = new ArrayList<>();
 
     /**
      * Constructor.
@@ -21,7 +22,8 @@ public final class SerialTask implements Task {
      * @param second Second task to be executed.
      * @param more More tasks if any to be executed.
      */
-    public SerialTask(Task first, Task second, Task... more) {
+    @SafeVarargs
+    public SerialTask(Task<T> first, Task<T> second, Task<T>... more) {
         list.add(first);
         list.add(second);
         if(more != null) {
@@ -37,8 +39,8 @@ public final class SerialTask implements Task {
      * @return True/false
      */
     @Override
-    public boolean execute(Context context) {
-        for(Task w: list) {
+    public boolean execute(Context<T> context) {
+        for(Task<T> w: list) {
             try {
                 if(!w.execute(context)) {
                     return false;

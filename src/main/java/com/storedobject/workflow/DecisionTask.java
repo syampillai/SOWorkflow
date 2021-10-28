@@ -1,14 +1,18 @@
 package com.storedobject.workflow;
 
+import java.util.function.Predicate;
+
 /**
  * Decision task. The predicate task ({@link #predicate}) is executed and if the result is <code>true</code>,
  * {@link #yesTask} is executed. Otherwise, {@link #noTask} is executed.
  *
+ * @param <T> Type of item used in the workflow.
  * @author Syam
  */
-public class DecisionTask implements Task {
+public final class DecisionTask<T> implements Task<T> {
 
-    private final Task predicate, yesTask, noTask;
+    private final Predicate<Context<T>> predicate;
+    private final Task<T> yesTask, noTask;
 
     /**
      * Constructor.
@@ -17,7 +21,7 @@ public class DecisionTask implements Task {
      * @param yesTask The task to be executed if the predicate task is successfully executed.
      * @param noTask The task to be executed if the predicate task fails to execute.
      */
-    public DecisionTask(Task predicate, Task yesTask, Task noTask) {
+    public DecisionTask(Predicate<Context<T>> predicate, Task<T> yesTask, Task<T> noTask) {
         this.predicate = predicate;
         this.yesTask = yesTask;
         this.noTask = noTask;
@@ -32,9 +36,13 @@ public class DecisionTask implements Task {
      * @return True/false
      */
     @Override
-    public boolean execute(Context context) {
-        boolean r = predicate.execute(context);
-        context.predecessor = predicate;
-        return r ? yesTask.execute(context) : noTask.execute(context);
+    public boolean execute(Context<T> context) {
+        try {
+            boolean r = predicate.test(context);
+            context.predecessor = this;
+            return r ? yesTask.execute(context) : noTask.execute(context);
+        } catch(Throwable ignored) {
+        }
+        return false;
     }
 }
