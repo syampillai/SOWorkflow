@@ -34,7 +34,7 @@ public final class BranchingTask<T> implements Task<T> {
      * Constructor.
      *
      * @param indexFunction Index generation function to determine the branch.
-     * @param indexOutOfBoundResult Result of execution if the index os out of range.
+     * @param indexOutOfBoundResult Result of execution if the index is out of range.
      * @param first First task (corresponding to index = 0).
      * @param second Second task (corresponding to index = 1).
      * @param more More tasks for index values > 1.
